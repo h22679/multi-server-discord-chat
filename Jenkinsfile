@@ -5,6 +5,7 @@ pipeline {
         stage('Update Repository') {
             steps {
                 dir('/apps/msdc') {
+                    sh 'git config --global --add safe.directory /apps/msdc'
                     sh 'git rev-parse --is-inside-work-tree || git init'
                     sh 'git remote add origin https://github.com/h22679/multi-server-discord-chat || git remote set-url origin https://github.com/h22679/multi-server-discord-chat'
 
