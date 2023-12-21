@@ -2,11 +2,16 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
+        stage('Update Repository') {
             steps {
                 dir('/apps/msdc') {
-                    sh 'rm -rf *'
-                    sh 'git clone https://github.com/h22679/multi-server-discord-chat .'
+                    sh 'git rev-parse --is-inside-work-tree || git init'
+                    sh 'git remote add origin https://github.com/h22679/multi-server-discord-chat || git remote set-url origin https://github.com/h22679/multi-server-discord-chat'
+
+                    // Fetch and reset without affecting the 'data' directory
+                    sh 'git fetch origin'
+                    sh 'git reset --hard origin/main'
+                    sh 'git clean -fdx --exclude=data'
                 }
             }
         }
