@@ -1,17 +1,26 @@
-# multi-server-discord-chat
-Bot thats allows users to communicate in a text channel that connects multiple servers.
+# Multi-server Discord Chat
+The Multi-Server Discord Chat bot allows users to communicate in a text channel that connects multiple servers. It's built using [nextcord](https://docs.nextcord.dev/en/stable/), [aiosqlite](https://pypi.org/project/aiosqlite/) and [profanityfilter](https://github.com/areebbeigh/profanityfilter).
 
-You can deploy your own bot to communicate with your own set of servers or invite an already running instance of this bot to connect to those servers.
+### You have two options for using this bot:
 
-The bot needs `Manage Channels` and `Manage Webhooks` permissions and the message content intent to be enabled to work properly.
+1. **Deploy Your Own Bot**: You can deploy your instance of the bot to facilitate communication within your specific set of servers.
 
-When you first invite it to a server you must use `/setrelaychannel` for it to start working. Other available commands are:
+2. **Invite a Running Instance**: Alternatively, you can invite an already running instance of this bot to connect to your servers.
 
-- `/setdisplayname` Allows you to set a custom server name for the relay channels instead of using the guild name.
-- `/setserverdescription` Allows you to add a description for your server.
-- `/setserverinvite` Allows you to add an invite link to your server.
-- `/listconnectedservers` Sends a list of currently connected servers.
-- `/toggleprofanityfilter` Enable/disble profanity filter. Only works on incoming messages.
+### Make sure to grant the bot the following permissions for proper functionality:
 
+- Manage Channels
+- Manage Webhooks
+- Enable the message content intent.
+
+## Getting Started
+
+When you first invite the bot to a server, ensure you use the `/setrelaychannel` command to start communicating with other servers. Here are some other available commands:
+
+- `/setdisplayname`: Customize the server name for relay channels instead of using the guild name.
+- `/setserverdescription`: Add a description for your server.
+- `/setserverinvite`: Include an invite link for your server.
+- `/listconnectedservers`: Get a list of currently connected servers.
+- `/toggleprofanityfilter`: Enable or disable the profanity filter, applicable only to incoming messages.
 
 Message logs are disabled (I simply commented the part I used to keep logs during testing) since I'm not sure if it would be ok to keep logs, to which extent it would be ok (how much information to collect) or if it would be helpful or effective at all for moderation actions, feel free to give me your feedback on this.
