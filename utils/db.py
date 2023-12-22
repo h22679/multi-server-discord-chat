@@ -2,13 +2,21 @@
 # Message logging does not work since im not sure if it would be ok to keep message logs or how effective
 # they would be to take moderation actions, feel free to give your feedback.
 import aiosqlite
-import logger
+from utils import logger
 import logging
+import os
 
 logger.setup_logging()
 log = logging.getLogger(__name__)   
 
-DATABASE_PATH = '/data/multiserver_chat.db'
+# Define the path to the data directory relative to the location of db.py
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+
+# Create the data directory if it doesn't exist
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# Define the path for the database file
+DATABASE_PATH = os.path.join(DATA_DIR, 'multiserver_chat.db')
 
 async def initialize_db():
     async with aiosqlite.connect(DATABASE_PATH) as db:
