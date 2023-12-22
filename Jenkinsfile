@@ -18,7 +18,7 @@ pipeline {
         }
         stage('Update Requirements') {
             steps {
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'home', transfers: [sshTransfer(execCommand: "docker exec jenkins_msdc_1 pip install -r ./requirements.txt")])])
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'home', transfers: [sshTransfer(execCommand: "docker exec jenkins_msdc_1 pip install -r /app/requirements.txt")])])
             }
         }
         stage('Restart Bot Container') {
