@@ -70,7 +70,7 @@ async def get_server_settings(server_id):
 async def get_all_server_settings():
     settings = {}
     async with aiosqlite.connect(DATABASE_PATH) as db:
-        async with db.execute('SELECT server_id, relay_channel_id, display_name, description, invite_link FROM server_settings') as cursor:
+        async with db.execute('SELECT server_id, relay_channel_id, display_name, description, invite_link, profanity_filter_enabled FROM server_settings') as cursor:
             async for row in cursor:
                 settings[row[0]] = {
                     "relay_channel_id": row[1],
