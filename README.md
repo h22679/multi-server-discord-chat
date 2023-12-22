@@ -11,6 +11,7 @@ When you first invite it to a server you must use `/setrelaychannel` for it to s
 - `/setserverdescription` Allows you to add a description for your server.
 - `/setserverinvite` Allows you to add an invite link to your server.
 - `/listconnectedservers` Sends a list of currently connected servers.
+- `/toggleprofanityfilter` Enable/disble profanity filter. Only works on incoming messages.
 
 
 Message logs are disabled (I simply commented the part I used to keep logs during testing) since I'm not sure if it would be ok to keep logs, to which extent it would be ok (how much information to collect) or if it would be helpful or effective at all for moderation actions, feel free to give me your feedback on this.

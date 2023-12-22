@@ -61,10 +61,12 @@ async def log_message(server_id, server_display_name, username, message_id, cont
 
 async def get_server_settings(server_id):
     async with aiosqlite.connect(DATABASE_PATH) as db:
-        async with db.execute('SELECT relay_channel_id, display_name FROM server_settings WHERE server_id = ?', (server_id,)) as cursor:
+        async with db.execute('SELECT relay_channel_id, display_name, profanity_filter_enabled FROM server_settings WHERE server_id = ?', (server_id,)) as cursor:
             row = await cursor.fetchone()
             if row:
-                return {"relay_channel_id": row[0], "display_name": row[1]}
+                settings = {"relay_channel_id": row[0], "display_name": row[1], "profanity_filter_enabled": row[2]}
+                log.info(f"Settings retrieved: {settings}")
+                return {"relay_channel_id": row[0], "display_name": row[1], "profanity_filter_enabled": row[2]}
             return {}
 
 async def get_all_server_settings():
@@ -79,4 +81,5 @@ async def get_all_server_settings():
                     "invite_link": row[4],
                     "profanity_filter_enabled": row[5]
                 }
+    log.info(f"Settings retrieved: {settings}")
     return settings

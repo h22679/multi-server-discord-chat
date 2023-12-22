@@ -33,6 +33,7 @@ from profanityfilter import ProfanityFilter
 pf = ProfanityFilter()
 
 def censor_profanity(text):
+    pf.set_censor("#")
     return pf.censor(text)
 
 intents = nextcord.Intents.default()
@@ -183,7 +184,7 @@ async def set_server_description(interaction: Interaction, description: str = Sl
 
 
 
-@bot.slash_command(guild_ids=[652892795488698368], name="setserverinvite", description="Set the invite link for this server.")
+@bot.slash_command(name="setserverinvite", description="Set the invite link for this server.")
 @commands.has_permissions(administrator=True)
 async def set_server_invite(interaction: Interaction, invite_link: str = SlashOption(description="Enter the server invite link")):
     """
@@ -202,27 +203,25 @@ async def set_server_invite(interaction: Interaction, invite_link: str = SlashOp
 
 
 
-@bot.slash_command(name="toggleprofanityfilter", description="Toggles the profanity filter for this server.")
+@bot.slash_command(name="toggleprofanityfilter", description="Set the profanity filter for this server.")
 @commands.has_permissions(administrator=True)
-async def toggle_profanity_filter(interaction: Interaction):
+async def toggle_profanity_filter(interaction: Interaction, enable: bool = SlashOption(description="Enable or disable the profanity filter", required=True)):
     """
-    Toggles the profanity filter for the server.
+    Sets the profanity filter for the server.
     Requires administrator permissions.
     """
-    # Retrieve all server settings
-    all_settings = await db.get_all_server_settings()
-    server_settings = all_settings.get(str(interaction.guild.id), {})
-    current_setting = server_settings.get("profanity_filter_enabled", 0)
-    
-    # Toggle the setting
-    new_setting = 0 if current_setting else 1
-    
     # Update the setting in the database
-    await db.update_server_setting(str(interaction.guild.id), "profanity_filter_enabled", new_setting)
+    await db.update_server_setting(str(interaction.guild.id), "profanity_filter_enabled", int(enable))
+    log.info(f"Saving profanity filter status: {int(enable)}")
+    
+    # Retrieve updated setting for debugging
+    updated_setting = await db.get_server_settings(str(interaction.guild.id))
+    log.info(f"Stored profanity filter status: {updated_setting.get('profanity_filter_enabled', 'Not Found')}")
     
     # Send a confirmation message
-    status = "enabled" if new_setting else "disabled"
+    status = "enabled" if enable else "disabled"
     await interaction.response.send_message(f"Profanity filter has been {status}.")
+
 
 
 @bot.event
@@ -234,12 +233,14 @@ async def on_message(message):
         server_settings = await db.get_server_settings(str(message.guild.id))
         if server_settings and server_settings.get("relay_channel_id") == str(message.channel.id):
             display_name = server_settings.get("display_name", message.guild.name)
-            log.info(f"Creating task for message {message.id} in {display_name}/{message.guild.name}")
+            log.info(f"Creating task for message {message.content} in {display_name}/{message.guild.name}")
             asyncio.create_task(relay_messages(message, display_name))
 
         await bot.process_commands(message)
     except Exception as e:
         log.error(f"Error in on_message: {e}", exc_info=True)
+
+
 
 async def relay_messages(message, display_name):
     try:
@@ -249,27 +250,33 @@ async def relay_messages(message, display_name):
                 target_channel_id = settings.get("relay_channel_id")
                 if target_channel_id:
                     target_channel = bot.get_channel(int(target_channel_id))
+                    # Check the destination server for profanity filter status
+                    destination_server_settings = all_server_settings.get(server_id)
+                    profanity_filter_enabled = destination_server_settings.get("profanity_filter_enabled", 0)
+                    log.info(f"Profanity filter for destination server {server_id}: {profanity_filter_enabled}")
                     if target_channel:
-                        log.info(f"Starting webhook task task for message {message} from {display_name} to server {server_id}")
-                        asyncio.create_task(relay_message_to_webhook(message, display_name, target_channel))
+                        log.info(f"Starting webhook task for message {message.content} from {display_name} to server {server_id}")
+                        asyncio.create_task(relay_message_to_webhook(message, display_name, target_channel, profanity_filter_enabled))
     except Exception as e:
-        log.error(f"Error in relay_messages: {e}", exc_info=True)
+        log.error(f"Error in relay_messages: {e}")
 
 
-async def relay_message_to_webhook(message, server_display_name, target_channel):
+
+async def relay_message_to_webhook(message, server_display_name, target_channel, profanity_filter_enabled):
     try:
-        # Retrieve the profanity filter setting for the server
-        server_settings = await db.get_server_settings(str(message.guild.id))
-        profanity_filter_enabled = server_settings.get("profanity_filter_enabled", 0)
+        log.info(f"Profanity filter: {profanity_filter_enabled}")
 
         # Censor the content if the profanity filter is enabled
         if profanity_filter_enabled:
             censored_content = censor_profanity(message.content)
+            log.info(f"Censoring: {censored_content}")
         else:
             censored_content = message.content
+            log.info(f"Not censoring: {censored_content}")
 
         # Check if the message is empty after censoring (skip if it is)
         if not censored_content.strip() and not message.attachments:
+            log.info("Message is empty")
             return
 
         webhooks = await target_channel.webhooks()
@@ -313,3 +320,4 @@ if __name__ == "__main__":
     asyncio.run(db.initialize_db())
     bot_token = os.getenv('DISCORD_TOKEN')
     bot.run(bot_token)
+
