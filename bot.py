@@ -46,6 +46,7 @@ log = logging.getLogger(__name__)
 
 @bot.event
 async def on_ready():
+    await update_bot_status()
     log.info(f'Logged in as {bot.user.name}')
 
 
@@ -84,6 +85,7 @@ async def set_relay_channel(interaction: Interaction,
         await channel.edit(slowmode_delay=slowmode_delay)
         await db.update_server_setting(str(interaction.guild.id), "relay_channel_id", str(channel.id))
         await db.update_server_setting(str(interaction.guild.id), "display_name", interaction.guild.name)
+        await update_bot_status()
         await interaction.response.send_message(
             f"Relay channel set to {channel.mention} with a slow mode delay of {slowmode_delay} seconds"
         )
@@ -315,6 +317,19 @@ async def relay_message_to_webhook(message, server_display_name, target_channel,
             log.exception("HTTPException occurred while sending a webhook message")
     except Exception as e:
         log.exception("An unexpected error occurred while sending a webhook message")
+
+async def update_bot_status():
+    all_settings = await db.get_all_server_settings()
+    relay_server_count = sum(1 for _ in bot.guilds if str(_.id) in all_settings and all_settings[str(_.id)].get("relay_channel_id"))
+    await bot.change_presence(activity=nextcord.Activity(type=nextcord.ActivityType.playing, name=f"{relay_server_count} connected servers."))
+
+@bot.event
+async def on_guild_join(guild):
+    await update_bot_status()
+
+@bot.event
+async def on_guild_remove(guild):
+    await update_bot_status()
 
 if __name__ == "__main__":
     asyncio.run(db.initialize_db())
