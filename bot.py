@@ -52,8 +52,7 @@ async def on_ready():
 
 #        COMMANDS
     
-@bot.slash_command(name="setrelaychannel", description="Set a channel as the relay channel for this server.")
-@commands.has_permissions(administrator=True)
+@bot.slash_command(name="setrelaychannel", description="Set a channel as the relay channel for this server.", default_member_permissions=nextcord.Permissions(administrator=True))
 async def set_relay_channel(interaction: Interaction, 
                             channel: nextcord.TextChannel = SlashOption(description="Select a channel"),
                             slowmode_delay: int = SlashOption(description="Set the slow mode delay in seconds", required=False, default=5)):
@@ -105,8 +104,7 @@ async def set_relay_channel(interaction: Interaction,
 
 
 
-@bot.slash_command(name="setdisplayname", description="Set the display name for this server in the relay.")
-@commands.has_permissions(administrator=True)
+@bot.slash_command(name="setdisplayname", description="Set the display name for this server in the relay.", default_member_permissions=nextcord.Permissions(administrator=True))
 async def set_display_name(interaction: Interaction, display_name: str = SlashOption(description="Enter the new display name")):
     """
     Set the display name for the server.
@@ -167,8 +165,7 @@ async def list_connected_servers(interaction: Interaction):
 
 
 
-@bot.slash_command(guild_ids=[652892795488698368], name="setserverdescription", description="Set the description for this server.")
-@commands.has_permissions(administrator=True)
+@bot.slash_command(name="setserverdescription", description="Set the description for this server.", default_member_permissions=nextcord.Permissions(administrator=True))
 async def set_server_description(interaction: Interaction, description: str = SlashOption(description="Enter the server description")):
     """
     Set the description for the server.
@@ -186,8 +183,7 @@ async def set_server_description(interaction: Interaction, description: str = Sl
 
 
 
-@bot.slash_command(name="setserverinvite", description="Set the invite link for this server.")
-@commands.has_permissions(administrator=True)
+@bot.slash_command(name="setserverinvite", description="Set the invite link for this server.", default_member_permissions=nextcord.Permissions(administrator=True))
 async def set_server_invite(interaction: Interaction, invite_link: str = SlashOption(description="Enter the server invite link")):
     """
     Set the invite link for the server.
@@ -205,8 +201,7 @@ async def set_server_invite(interaction: Interaction, invite_link: str = SlashOp
 
 
 
-@bot.slash_command(name="toggleprofanityfilter", description="Set the profanity filter for this server.")
-@commands.has_permissions(administrator=True)
+@bot.slash_command(name="toggleprofanityfilter", description="Set the profanity filter for this server.", default_member_permissions=nextcord.Permissions(administrator=True))
 async def toggle_profanity_filter(interaction: Interaction, enable: bool = SlashOption(description="Enable or disable the profanity filter", required=True)):
     """
     Sets the profanity filter for the server.
@@ -335,4 +330,3 @@ if __name__ == "__main__":
     asyncio.run(db.initialize_db())
     bot_token = os.getenv('DISCORD_TOKEN')
     bot.run(bot_token)
-
